@@ -1,95 +1,89 @@
-grammar Algoritmia;
+// la estruct. base:
+grammar Algoritmia; //definimos el nombre de la gramática
+root: procDef* EOF; //definimos el root de la gramática, aca especificamos que procDef puede estar 0 o mas veces y termina con EOF que es el fin del archivo.(end of file)  
 
-/* 
- * Gramática para un lenguaje de programación musical
- * Permite crear música mediante algoritmos
- * Incluye operaciones con listas y notas musicales
- *
- * Ejemplos de uso:
- * - Asignación:    variable <- 42
- * - Lista:         lista <- {1 2 3}
- * - Reproducir:    (:) C4
- * - Agregar:       lista << elemento
- * - Cortar:        8< lista[0]
- */
 
-// Punto de entrada - Un programa es una secuencia de definiciones de procedimientos
-root: procDef* EOF;
-
-// Secuencia de instrucciones - Puede contener 0 o más instrucciones
+//INS: definimos que inss puede estar 0 o mas veces. inss es una lista de instrucciones.
 inss: ins*;
-
-// Tipos de instrucciones permitidas:
-// - Estructuras de control (if, while)
-// - Operaciones básicas (input, output, llamadas a procedimientos, asignaciones, reproducción)
-// - Operaciones de lista (agregar, cortar)
+//definimos que ins puede ser una condición, un while, una entrada, una salida, un procedimiento, una asignación, o una reproducción. 
 ins: (condition | while_)
-    | (input_ | output_ | proc | assign | reprod)
-    | (agregado | corte) ;
+    | (input_ | output_ | proc | assign | reprod) //input_ es una entrada, output_ es una salida, proc es un procedimiento, assign es una asignación, reprod es una reproducción.
+    | (agregado | corte) ; 
 
-// Entrada/Salida
-input_: '<?>' VAR;      // Entrada: <?> variable
-output_: '<w>' expr+;   // Salida: <w> expresión
 
-// Estructuras de control
-condition: 'if' expr LB inss RB ('else' LB inss RB)?;  // if condición |: instrucciones :| else |: instrucciones :|
-while_: 'while' expr LB inss RB;                       // while condición |: instrucciones :|
+// INPUT & OUTPUT:
+input_: '<?>' VAR;      
+output_: '<w>' expr+;   
 
-// Operaciones musicales
-reprod: REPROD expr;    // Reproducir nota: (:) C4
-REPROD: '(:)';          // Símbolo de reproducción musical
+// CONDITION & WHILE: (ahi dejo el flujo de la gramática pa que entiendan xdd, osea el significado de cada cosa)
+condition: 'if' expr LB inss RB ('else' LB inss RB)?; 
+//condition: if expresion |: instrucciones :| else |: instrucciones :|
+while_: 'while' expr LB inss RB;                       
+//while: while expresion |: instrucciones :|
 
-// Operaciones con listas
-agregado: VAR AGREGADO expr;        // Agregar elemento: lista << elemento
-AGREGADO: '<<';                     // Operador de agregación
+// REPROD:
+reprod: REPROD expr;
+// Reproduccion de nota: (:) nota
+REPROD: '(:)';         
 
-corte: CORTA VAR LS expr RS;        // Cortar elemento: 8< lista[índice]
-CORTA: '8<';                        // Operador de corte
+// AGREGADO & CORTA:
+agregado: VAR AGREGADO expr;        
+// Agregar elemento: lista << elemento
+AGREGADO: '<<';         
 
-// Procedimientos
-procDef: PROCNAME paramsId LB inss RB;    // Definición: PROC param1 param2 |: instrucciones :|
-proc: PROCNAME paramsExpr (expr)*;         // Llamada: PROC arg1 arg2
+// CORTA:
+corte: CORTA VAR LS expr RS;        
+//Corte:  8<  VARIABLE [expresion]
+CORTA: '8<';                   
 
-// Asignaciones y parámetros
-assign: VAR ASSIGN expr;    // variable <- expresión
-ASSIGN: '<-';              // Operador de asignación
-paramsId: (VAR)*;          // Lista de parámetros en definición
-paramsExpr: (expr)*;       // Lista de argumentos en llamada
+// PROC
+procDef: PROCNAME paramsId LB inss RB;    
+// procDef: PROC param1 param2 |: instrucciones :|
+proc: PROCNAME paramsExpr (expr)*;  
+
+// Asignacion:
+assign: VAR ASSIGN expr;   
+// assign: variable <- expresión
+ASSIGN: '<-';            
+
+//PARAMS:
+paramsId: (VAR)*;
+paramsExpr: (expr)*;
 
 // Listas y acceso
-lista : '{' expr* '}';              // Definición de lista: {1 2 3}
-consult: VAR LS expr RS;            // Acceso a lista: lista[índice]
+lista : '{' expr* '}';// Definición de lista: {1 2 3}
+consult: VAR LS expr RS;
 
-// Expresiones - Define la precedencia de operadores (de mayor a menor)
-expr: expr MUL expr #Mul            // Multiplicación: a * b
-    | expr DIV expr #Div            // División: a / b
-    | expr MOD expr #Mod            // Módulo: a % b
-    | expr SUM expr #Sum            // Suma: a + b
-    | expr MIN expr #Min            // Resta: a - b
-    | expr GT expr  #Gt             // Mayor que: a > b
-    | expr GET expr #Get            // Mayor o igual: a >= b
-    | expr LT expr  #Lt             // Menor que: a < b
-    | expr LET expr #Let            // Menor o igual: a <= b
-    | expr EQ expr  #Eq             // Igual: a = b
-    | expr NEQ expr #Neq            // No igual: a /= b
+// Expresiones - Define la precedencia de operadores
+expr: expr MUL expr #Mul            // Multiplicación
+    | expr DIV expr #Div            // División
+    | expr MOD expr #Mod            // Modulo
+    | expr SUM expr #Sum            // Suma
+    | expr MIN expr #Min            // Resta
+    | expr GT expr  #Gt             // Mayor que
+    | expr GET expr #Get            // Mayor o igual
+    | expr LT expr  #Lt             // Menor que
+    | expr LET expr #Let            // Menor o igual
+    | expr EQ expr  #Eq             // Igual
+    | expr NEQ expr #Neq            // No igual
     | VAR           #Var            // Variable
-    | STRING        #String         // Cadena: "texto"
-    | NUM           #Num            // Número: 42 o -3.14
-    | lista         #lst            // Lista: {1 2 3}
-    | siz           #sz             // Tamaño: #lista
-    | consult       #consul         // Consulta: lista[0]
-    | NOTA          #Nota           // Nota musical: C4
-    | LP expr RP    #Parens ;       // Paréntesis: (expr)
+    | STRING        #String         // Cadena
+    | NUM           #Num            // Numero
+    | lista         #lst            // Lista
+    | siz           #sz             // Tamaño
+    | consult       #consul         // Consulta
+    | NOTA          #Nota           // Nota musical
+    | LP expr RP    #Parens ;       // Paréntesis
 
-// Operador de tamaño para listas
-siz: SIZE VAR;        // #lista - obtiene el tamaño de una lista
-SIZE: '#';            // Símbolo de tamaño
+// SIZE:
+siz: SIZE VAR;// #lista - obtiene el tamaño de una lista
+SIZE: '#';    
 
-// Notas musicales: C, D, E, F, G, A, B, opcionalmente seguidas de octava (0-9)
+// Notas musicales: C, D, E, F, G, A, B
 NOTA: [A-G][0-9]?;
 
-// Nombres de procedimientos: deben empezar con mayúscula
-PROCNAME: [A-Z][a-zA-Z0-9_]*;
+// Nombres de procedimientos: deben empezar con mayúscula si o si
+PROCNAME: [A-Z][a-zA-Z0-9_]*; 
 
 // Delimitadores
 LB: '|:';            // Inicio de bloque
@@ -112,11 +106,19 @@ LT: '<';             // Menor que
 GET: '>=';           // Mayor o igual que
 LET: '<=';           // Menor o igual que
 
-// Identificadores y literales
-VAR: [a-zA-Z][a-zA-Z0-9]*;                     // Variables: empiezan con letra
-NUM: '-'?[0-9]+('.'[0-9]+)?;                   // Números: enteros o decimales
-STRING: '"' ( '\\' . | ~('\\'|'"'))* '"';      // Cadenas: entre comillas dobles
 
-// Comentarios y espacios en blanco (ignorados por el parser)
+// NOLVIDAR: * -> Cero o mAs ocurrencias del elemento anterior
+
+// Identificadores y literales
+VAR: [a-zA-Z][a-zA-Z0-9]*;                     
+// Variables: empiezan con letra, despues pueden venir 0 o mas caracteres que sean letras o números
+
+NUM: '-'?[0-9]+('.'[0-9]+)?;                   
+// Números:Puede tener opcionalmente un signo negativo al inicio, Debe tener uno o más dígitos, Opcionalmente puede tener un punto decimal seguido de más dígitos Y  todo gracias al '?'
+
+STRING: '"' ( '\\' . | ~('\\'|'"'))* '"';      
+// Cadenas: Comienza con comilla doble.  estas son '\\' secuencia de escape y el punto '.' es cualquier caracter excepto '\\' o '"'. Y ~('\\'|'"'): Cualquier carácter excepto backslash o comilla doble. Termina con comilla doble
+
+// Comentarios y espacios en blanco
 COMMENT: '###' ~[\r\n]* -> skip;               // Comentarios de línea: ### comentario
 WS: [ \t\r\n]+ -> skip;                        // Espacios en blanco y saltos de línea

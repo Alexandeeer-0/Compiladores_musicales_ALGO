@@ -1,28 +1,30 @@
-from AlgoritmiaParser import AlgoritmiaParser
-from AlgoritmiaVisitor import AlgoritmiaVisitor as BaseVisitor
-import operator
-from collections import defaultdict
-import os
-import subprocess
-import mido
-from mido import MidiFile, MidiTrack, Message
+#le metemos sus imports tmb IMPORTANTISIMO
+from AlgoritmiaParser import AlgoritmiaParser #esto para interactuar con el parser
+from AlgoritmiaVisitor import AlgoritmiaVisitor as BaseVisitor #esto para interactuar con el visitante
+import operator #esto para interactuar con los operadores
+from collections import defaultdict #esto para interactuar con los diccionarios
+import os #esto para interactuar con el sistema de archivos
+import subprocess #esto para interactuar con el sistema de procesos
+from mido import MidiFile, MidiTrack, Message #esto para interactuar con los archivos midi
 
 
-# Environment for managing variables and notes
+#definimos la clase AlgoritmiaEnv para interactuar con el entorno de ejecución
 class AlgoritmiaEnv:
     def __init__(self):
-        self.variables = {}
-        self.notes = {
+        self.variables = {} #diccionario para almacenar las variables
+        self.notes = { #diccionario para almacenar las notas
             "C": 60, "D": 62, "E": 64, "F": 65, "G": 67,
             "A": 69, "B": 71
-        }
+        } #ACA ESTAN LAS NOTAS PIANOS QUE DICE EN EL DOCUMENTO
 
+    #definimos la funcion get para obtener el valor de una variable
     def get(self, var):
         if var not in self.variables:
             print(f"Warning: Variable '{var}' not defined")
             return None
         return self.variables.get(var)
 
+    #definimos la funcion set para asignar un valor a una variable
     def set(self, var, value):
         self.variables[var] = value
 
