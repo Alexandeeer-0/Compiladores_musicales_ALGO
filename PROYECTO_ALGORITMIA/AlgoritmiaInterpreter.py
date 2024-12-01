@@ -29,26 +29,25 @@ class AlgoritmiaEnv:
         self.variables[var] = value
 
 
-# Visitor class for interpreting the Algoritmia language
+#definimos la clase AlgoritmiaVisitor para interpretar el lenguaje Algoritmia
 class AlgoritmiaVisitor(BaseVisitor):
     def __init__(self):
         super().__init__()
-        self.procs = {}
-        self.env = AlgoritmiaEnv()
-        self.midi_notes = []
-        self.lily_notes = []
-        self.tempo = 120  # Default tempo (BPM)
-        self.volume = 64  # Default volume (0-127)
+        self.procs = {} #diccionario para almacenar las procedimientos
+        self.env = AlgoritmiaEnv() #instancia de la clase AlgoritmiaEnv
+        self.midi_notes = [] #lista para almacenar las notas midi
+        self.lily_notes = [] #lista para almacenar las notas lilypond
+        self.tempo = 120  # Default tempo (BPM) esto es la velocidad de la musica EL TEMPOOOOOO WUU
+        self.volume = 64  # Default volume (0-127) 
         
-        # Path to LilyPond executable
-        self.lilypond_path = r"C:\Users\alxpe\PYCharm\lilypond-2.24.4\bin\lilypond.exe"
+        #ruta del ejecutable de lilypond p mi chill de cojones
+        self.lilypond_path = r"C:\Users\alxpe\Desarrollo-de-Compiladores-e-Interpretes-Notas-Musical\PROYECTO_ALGORITMIA\lilypond-2.24.2-mingw-x86_64.exe"
 
+    #definimos la funcion visitRoot para visitar el nodo raiz del arbol de sintaxis
     def visitRoot(self, ctx):
-        # Visit all procedure definitions first
         for proc in ctx.procDef():
             self.visit(proc)
         
-        # Then call the main procedure if it exists
         if 'PlayMelody' in self.procs:
             self.call_proc('PlayMelody', [])
         return None
@@ -74,11 +73,9 @@ class AlgoritmiaVisitor(BaseVisitor):
     def visitReprod(self, ctx):
         note = self.visit(ctx.expr())
         if isinstance(note, str):
-            # Process for MIDI
             midi_note = self.env.notes.get(note, 60)
             self.midi_notes.append((midi_note, self.volume))
             
-            # Process for LilyPond (convert to lowercase)
             lily_note = note.lower()
             self.lily_notes.append(lily_note)
             
@@ -188,7 +185,7 @@ class AlgoritmiaVisitor(BaseVisitor):
 
     def visitString(self, ctx):
         text = ctx.getText()
-        return text[1:-1]  # Remove quotes
+        return text[1:-1] 
 
     def visitSz(self, ctx):
         var_name = ctx.siz().VAR().getText()
@@ -224,15 +221,12 @@ class AlgoritmiaVisitor(BaseVisitor):
         proc = self.procs[proc_name]
         old_values = {}
         
-        # Save old values and set new parameter values
         for param, value in zip(proc["params"], param_values):
             old_values[param] = self.env.get(param)
             self.env.set(param, value)
         
-        # Execute procedure body
         result = self.visit(proc["body"])
         
-        # Restore old values
         for param, value in old_values.items():
             if value is not None:
                 self.env.set(param, value)
@@ -241,18 +235,20 @@ class AlgoritmiaVisitor(BaseVisitor):
         
         return result
 
-    def visitCorte(self, ctx):
-        var_name = ctx.VAR().getText()
-        index = int(self.visit(ctx.expr()))
-        lista = self.env.get(var_name)
-        if isinstance(lista, list) and 0 <= index < len(lista):
-            value = lista.pop(index)
-            return value
-        return None
+    #definimos la funcion visitCorte para visitar el nodo corte del arbol de sintaxis
+    def visitCorte(self, ctx): #ctx es el contexto actual
+        var_name = ctx.VAR().getText() #obtenemos el nombre de la variable
+        index = int(self.visit(ctx.expr())) #obtenemos el indice de la lista
+        lista = self.env.get(var_name) #obtenemos la lista de la variable
+        if isinstance(lista, list) and 0 <= index < len(lista): #si la lista existe y el indice es valido
+            value = lista.pop(index) #eliminamos el elemento de la lista
+            return value #devolvemos el valor eliminado
+        return None #si no hay lista o el indice no es valido, devolvemos None
 
-    def visitAgregado(self, ctx):
-        var_name = ctx.VAR().getText()
-        value = self.visit(ctx.expr())
+    #definimos la funcion visitAgregado para visitar el nodo agregado del arbol de sintaxis
+    def visitAgregado(self, ctx): 
+        var_name = ctx.VAR().getText() 
+        value = self.visit(ctx.expr()) 
         lista = self.env.get(var_name)
         if not isinstance(lista, list):
             lista = []
@@ -260,20 +256,21 @@ class AlgoritmiaVisitor(BaseVisitor):
         lista.append(value)
         return None
 
+    #definimos la funcion generate_midi para generar el archivo midi
     def generate_midi(self):
         print("Generating MIDI file...")
-        midi_file = MidiFile()
-        track = MidiTrack()
-        midi_file.tracks.append(track)
+        midi_file = MidiFile() #creamos un archivo midi
+        track = MidiTrack() #creamos una pista midi
+        midi_file.tracks.append(track) #agregamos la pista al archivo
 
-        # Add notes with volume
         for note, volume in self.midi_notes:
-            track.append(Message('note_on', note=note, velocity=volume, time=0))
-            track.append(Message('note_off', note=note, velocity=volume, time=500))
+            track.append(Message('note_on', note=note, velocity=volume, time=0)) #agregamos el mensaje de inicio de nota
+            track.append(Message('note_off', note=note, velocity=volume, time=500)) #agregamos el mensaje de fin de nota
 
-        midi_file.save('output.mid')
+        midi_file.save('output.mid') #guardamos el archivo midi
         print("MIDI file 'output.mid' has been generated.")
 
+    #definimos la funcion generate_lilypond para generar el archivo lilypond
     def generate_lilypond(self):
         print("Generating LilyPond file...")
         lily_content = f"""\\version "2.24.0"
@@ -307,16 +304,15 @@ class AlgoritmiaVisitor(BaseVisitor):
     \\midi {{ }}
 }}"""
         
-        with open('output.ly', 'w', encoding='utf-8') as f:
-            f.write(lily_content)
+        with open('output.ly', 'w', encoding='utf-8') as f: #abrimos el archivo lilypond
+            f.write(lily_content) #escribimos el contenido del archivo lilypond
         print("LilyPond file 'output.ly' has been generated.")
         
-        # Generate PDF using LilyPond
         print("Generating PDF score...")
         try:
-            result = subprocess.run([self.lilypond_path, 'output.ly'], 
-                                 capture_output=True, 
-                                 text=True)
+            result = subprocess.run([self.lilypond_path, 'output.ly'], #ejecutamos el comando de lilypond
+                                 capture_output=True, #capturamos la salida
+                                 text=True) #decodificamos la salida como texto
             if result.returncode == 0:
                 print("PDF score has been generated successfully.")
             else:

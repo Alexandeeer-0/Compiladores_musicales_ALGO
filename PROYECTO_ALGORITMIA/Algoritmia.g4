@@ -1,4 +1,4 @@
-// la estruct. base:
+// la estruct. base p mi chill de cojones:
 grammar Algoritmia; //definimos el nombre de la gramática
 root: procDef* EOF; //definimos el root de la gramática, aca especificamos que procDef puede estar 0 o mas veces y termina con EOF que es el fin del archivo.(end of file)  
 
