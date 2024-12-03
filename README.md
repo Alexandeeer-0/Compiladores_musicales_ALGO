@@ -38,25 +38,28 @@ Este proyecto implementa un compilador e intérprete para un lenguaje de program
 ## 📝 Sintaxis del Lenguaje
 
 ```
-### Ejemplo de melodía simple
-PlayMelody |:
-    ### Escala ascendente
+### ejemplito que esta dentro del codigo
+Cancioncita |:
     (:) C
-    (:) D
-    (:) E
-    (:) F
+    (:) C
+    (:) G
+    (:) G
+    (:) A
+    (:) A
     (:) G
     
-    ### Melodía
+    (:) F
+    (:) F
+    (:) E
+    (:) E
+    (:) D
+    (:) D
     (:) C
-    (:) C
-    (:) G
-    (:) G
-    (:) A
-    (:) A
-    (:) G
 :|
-```
+
+PlayMelody |:
+    Cancioncita
+:| 
 
 ## 🎵 Elementos del Lenguaje
 
