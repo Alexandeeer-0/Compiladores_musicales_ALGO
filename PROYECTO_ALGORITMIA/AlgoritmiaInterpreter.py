@@ -41,7 +41,7 @@ class AlgoritmiaVisitor(BaseVisitor):
         self.volume = 64  # Default volume (0-127) 
         
         #ruta del ejecutable de lilypond p mi chill de cojones
-        self.lilypond_path = r"C:\Users\alxpe\IDLE\Desarrollo-de-Compiladores-e-Interpretes-Notas-Musical\PROYECTO_ALGORITMIA\lilypond-2.24.2-mingw-x86_64.exe"
+        self.lilypond_path = r"C:\Users\USUARIO\CARPETA-PROYECTO\Desarrollo-de-Compiladores-e-Interpretes-Notas-Musical\PROYECTO_ALGORITMIA\lilypond-2.24.2-mingw-x86_64.exe"
 
     #definimos la funcion visitRoot para visitar el nodo raiz del arbol de sintaxis
     def visitRoot(self, ctx):
