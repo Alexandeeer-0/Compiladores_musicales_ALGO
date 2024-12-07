@@ -162,5 +162,5 @@ PROYECTO_ALGORITMIA/
 ---
 
 <div align="center">
-  <p>Desarrollado con ❤️ para la comunidad de programadores musicales</p>
+  <p>Desarrollado con ❤️ para la comunidad de la Cayetano Heredia</p>
 </div>
